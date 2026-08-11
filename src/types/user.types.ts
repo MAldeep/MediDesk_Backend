@@ -1,4 +1,5 @@
 import { Document } from "mongoose";
+import { Request } from "express";
 
 export type UserRole = "admin" | "doctor" | "staff";
 
@@ -10,4 +11,8 @@ export interface IUser extends Document {
   refreshToken?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: IUser;
 }

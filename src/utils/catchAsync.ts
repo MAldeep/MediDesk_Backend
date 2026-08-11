@@ -1,13 +1,13 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 
-type AsyncFunction = (
-  req: Request,
+type AsyncRequestHandler<T extends Request = Request> = (
+  req: T,
   res: Response,
   next: NextFunction,
 ) => Promise<any>;
 
-export const catchAsync = (fn: AsyncFunction): RequestHandler => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
+export const catchAsync =
+  <T extends Request = Request>(fn: AsyncRequestHandler<T>): RequestHandler =>
+  (req, res, next) => {
+    fn(req as T, res, next).catch(next);
   };
-};
