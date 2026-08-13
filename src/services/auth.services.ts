@@ -30,7 +30,7 @@ export class AuthService {
       id: newUser._id.toString(),
       name: newUser.name,
       email: newUser.email,
-      role: newUser.role,
+      role: "admin",
     };
   }
   // Login
