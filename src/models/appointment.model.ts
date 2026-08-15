@@ -3,10 +3,10 @@ import { IAppointment } from "../types/appointment.types.js";
 
 const appointmentSchema = new Schema<IAppointment>(
   {
-    patientName: {
-      type: String,
+    patient: {
+      type: Schema.Types.ObjectId,
       required: [true, "Patient name is required"],
-      trim: true,
+      ref: "Patient",
     },
     doctor: {
       type: Schema.Types.ObjectId,
