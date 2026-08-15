@@ -86,4 +86,55 @@ export class AuthController {
       message: "Logged out successfully",
     });
   });
+  // forgotPassword
+  static forgotPassword = catchAsync(async (req: Request, res: Response) => {
+    const userEmail = req.body;
+    await AuthService.forgotPassword(userEmail);
+    res.status(200).json({
+      status: "success",
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
+  });
+  // resetPassword
+  static resetPassword = catchAsync(async (req: Request, res: Response) => {
+    const { token } = req.params;
+    const resetToken = Array.isArray(token) ? token[0] : token;
+
+    if (!resetToken) {
+      throw new AppError("Reset token is missing", 400);
+    }
+
+    const newPassword = req.body;
+    await AuthService.resetPassword(resetToken, newPassword);
+    res.status(200).json({
+      status: "success",
+      message: "Password Reset Successfully!",
+    });
+  });
+  // setPassword
+  static setPassword = catchAsync(async (req: Request, res: Response) => {
+    const { token } = req.params;
+    const setToken = Array.isArray(token) ? token[0] : token;
+    const password = req.body;
+    if (!setToken) {
+      throw new AppError("Reset token is missing", 400);
+    }
+    const newUser = await AuthService.setPassword(setToken, password);
+    res.status(200).json({
+      status: "success",
+      message: "Password set successfully!",
+      data: { newUser },
+    });
+  });
+  // inviteUser
+  static inviteUser = catchAsync(async (req: Request, res: Response) => {
+    const data = req.body;
+    const user = await AuthService.inviteUser(data);
+    res.status(201).json({
+      status: "success",
+      message: "User invited successfully",
+      data: { user },
+    });
+  });
 }
