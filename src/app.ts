@@ -11,7 +11,7 @@ import globalErrorHandler from "./middlewares/errorHandler.middleware.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
-
+import patientRoutes from "./routes/patient.routes.js";
 const app = express();
 
 // 1. Security Headers
@@ -60,7 +60,7 @@ app.use(cookieParser());
 // 6. Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
-
+app.use("/api/patients", patientRoutes);
 // 7. 404 Route Handler
 app.use((req: Request, _res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

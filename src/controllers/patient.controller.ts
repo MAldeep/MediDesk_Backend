@@ -18,9 +18,10 @@ export class PatientController {
   // get one
   static getById = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
-      const { id } = req.params;
-      const patientId = Array.isArray(id) ? id[0] : id;
-      const patient = await PatientService.getById(patientId);
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const patient = await PatientService.getById(id);
       res.status(200).json({
         status: "success",
         data: { patient },
@@ -43,7 +44,9 @@ export class PatientController {
   static update = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
       const updateData = req.body;
-      const { id } = Array.isArray(req.params) ? req.params[0] : req.params;
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
       const patient = await PatientService.update(id, updateData);
       res.status(200).json({
         status: "success",
@@ -54,7 +57,9 @@ export class PatientController {
   );
   static delete = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
-      const { id } = Array.isArray(req.params) ? req.params[0] : req.params;
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
       const deletedPatient = await PatientService.delete(id);
       res.status(200).json({
         status: "success",
