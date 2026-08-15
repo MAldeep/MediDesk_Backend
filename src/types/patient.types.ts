@@ -1,4 +1,5 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+import { IAppointment } from "./appointment.types.js";
 
 export interface IPatient extends Document {
   name: string;
@@ -6,4 +7,6 @@ export interface IPatient extends Document {
   address: string;
   age: number;
   gender: "male" | "female";
+  history?: string;
+  appointments: Types.ObjectId[] | IAppointment[];
 }

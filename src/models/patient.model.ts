@@ -26,6 +26,15 @@ const patientSchema = new Schema<IPatient>(
       required: [true, "Gender is required"],
       enum: ["male", "female"],
     },
+    history: {
+      type: String,
+      required: false,
+    },
+    appointments: {
+      type: [Schema.Types.ObjectId],
+      ref: "Appointment",
+      default: [],
+    },
   },
   {
     timestamps: true,
