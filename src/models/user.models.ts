@@ -47,13 +47,13 @@ const userSchema = new Schema<IUser>(
 );
 
 export const createPasswordResetToken = () => {
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const rawToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = crypto
     .createHash("sha256")
-    .update(resetToken)
+    .update(rawToken)
     .digest("hex");
 
-  return { resetToken, hashedToken };
+  return { rawToken, hashedToken };
 };
 userSchema.pre("save", async function () {
   if (!this.isModified("password") || !this.password) return;

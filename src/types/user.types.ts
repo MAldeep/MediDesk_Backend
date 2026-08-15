@@ -11,9 +11,9 @@ export interface IUser extends Document {
   refreshToken?: string | null;
   isVerified: boolean;
   setPasswordToken?: string;
-  setPasswordExpires: Date;
+  setPasswordExpires: Date | undefined;
   passwordResetToken?: string;
-  passwordResetExpires: Date;
+  passwordResetExpires: Date | undefined;
   createdAt: Date;
   updatedAt: Date;
 }

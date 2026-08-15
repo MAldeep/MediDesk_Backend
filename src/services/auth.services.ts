@@ -1,9 +1,12 @@
 import bcrypt from "bcryptjs";
-import { User } from "../models/user.models.js";
+import { createPasswordResetToken, User } from "../models/user.models.js";
 import { UserRole } from "../types/user.types.js";
 import { AppError } from "../utils/appError.js";
 import { generateToken } from "../utils/generateToken.js";
 import { LoginInput, RegisterInput } from "../validations/auth.schema.js";
+import crypto from "crypto";
+import { EmailService } from "./email.service.js";
+
 export interface SafeUser {
   id: string;
   name: string;
@@ -15,7 +18,11 @@ interface AuthResult {
   accessToken: string;
   refreshToken: string;
 }
-
+interface InviteUser {
+  name: string;
+  email: string;
+  role: "doctor" | "staff";
+}
 export class AuthService {
   // Register
   static async register(data: RegisterInput): Promise<SafeUser> {
@@ -25,13 +32,101 @@ export class AuthService {
       throw new AppError("Email already used", 400);
     }
     // create the user
-    const newUser = await User.create(data);
+    const newUser = await User.create({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: "admin",
+      isVerified: true,
+    });
     return {
       id: newUser._id.toString(),
       name: newUser.name,
       email: newUser.email,
       role: "admin",
     };
+  }
+  // Invite User by admin
+  static async inviteUser(data: InviteUser) {
+    const existingUser = await User.findOne({ email: data.email });
+    if (existingUser) {
+      throw new AppError("Email already in use", 400);
+    }
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+    const newUser = await User.create({
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      isVerified: false,
+      setPasswordToken: hashedToken,
+      setPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+    await EmailService.sendSetPasswordEmail(newUser.email, rawToken);
+    return {
+      id: newUser._id.toString(),
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      isVerified: newUser.isVerified,
+    };
+  }
+  // forgot password
+  static async forgotPassword(email: string) {
+    const exisitingUser = await User.findOne({ email: email });
+    if (!exisitingUser) {
+      throw new AppError("User with this email not found", 404);
+    }
+    const { rawToken, hashedToken } = createPasswordResetToken();
+    exisitingUser.passwordResetToken = hashedToken;
+    exisitingUser.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await exisitingUser.save({ validateBeforeSave: false });
+    await EmailService.sendResetPasswordEmail(exisitingUser.email, rawToken);
+    // i don't know what should i return here
+  }
+  // reset password
+  static async resetPassword(token: string, newPassword: string) {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const existingUser = await User.findOne({
+      passwordResetToken: hashedToken,
+    });
+    if (
+      !existingUser ||
+      !existingUser.passwordResetExpires ||
+      existingUser.passwordResetExpires.getTime() < Date.now()
+    ) {
+      throw new AppError("Invalid or expired password reset token", 400);
+    }
+    existingUser.password = newPassword;
+    existingUser.passwordResetToken = undefined;
+    existingUser.passwordResetExpires = undefined;
+    await existingUser.save();
+  }
+  // set password for doctor and staff
+  static async setPassword(token: string, newPassword: string) {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const existingUser = await User.findOne({
+      setPasswordToken: hashedToken,
+    });
+
+    if (
+      !existingUser ||
+      !existingUser.setPasswordExpires ||
+      existingUser.setPasswordExpires.getTime() < Date.now()
+    ) {
+      throw new AppError("Invalid or expired password set token", 400);
+    }
+
+    existingUser.password = newPassword;
+    existingUser.isVerified = true;
+    existingUser.setPasswordToken = undefined;
+    existingUser.setPasswordExpires = undefined;
+
+    await existingUser.save();
   }
   // Login
   static async login(data: LoginInput): Promise<AuthResult> {
