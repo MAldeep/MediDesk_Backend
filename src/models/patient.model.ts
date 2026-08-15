@@ -17,6 +17,15 @@ const patientSchema = new Schema<IPatient>(
       type: String,
       required: false,
     },
+    age: {
+      type: Number,
+      required: [true, "Age is Required"],
+    },
+    gender: {
+      type: String,
+      required: [true, "Gender is required"],
+      enum: ["male", "female"],
+    },
   },
   {
     timestamps: true,
