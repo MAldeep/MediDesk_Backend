@@ -9,6 +9,11 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production"]).default("development"),
   JWT_ACCESS_SECRET: z.string().min(10),
   JWT_REFRESH_SECRET: z.string().min(10),
+  SMTP_Host: z.string(),
+  SMTP_Port: z.string().transform((val) => parseInt(val, 10)),
+  SMTP_Username: z.string(),
+  SMTP_Password: z.string(),
+  CLIENT_URL: z.string(),
 });
 
 const parseResult = envSchema.safeParse(process.env);

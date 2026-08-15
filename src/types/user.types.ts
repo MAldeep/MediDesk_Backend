@@ -9,6 +9,11 @@ export interface IUser extends Document {
   password?: string;
   role: UserRole;
   refreshToken?: string | null;
+  isVerified: boolean;
+  setPasswordToken?: string;
+  setPasswordExpires: Date;
+  passwordResetToken?: string;
+  passwordResetExpires: Date;
   createdAt: Date;
   updatedAt: Date;
 }
