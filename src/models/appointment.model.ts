@@ -45,6 +45,7 @@ const appointmentSchema = new Schema<IAppointment>(
 //     next();
 //   }
 // });
+// appointmentSchema.index({ doctor: 1, date: 1 }, { unique: true });
 export const Appointment = model<IAppointment>(
   "Appointment",
   appointmentSchema,
