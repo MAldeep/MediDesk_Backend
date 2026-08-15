@@ -32,7 +32,19 @@ const appointmentSchema = new Schema<IAppointment>(
     timestamps: true,
   },
 );
+// appointmentSchema.pre(/^find/, function (this: any, next: () => void) {
+//   this.populate({
+//     path: "patient",
+//     select: "name phone age gender",
+//   }).populate({
+//     path: "doctor",
+//     select: "name email role",
+//   });
 
+//   if (next) {
+//     next();
+//   }
+// });
 export const Appointment = model<IAppointment>(
   "Appointment",
   appointmentSchema,
