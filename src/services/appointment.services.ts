@@ -14,6 +14,7 @@ export class AppointmentService {
     const appointments = await Appointment.find(filter)
       .populate("doctor", "name email")
       .populate("createdBy", "name email")
+      .populate("patient", "name phone")
       .sort({ date: 1 });
     return appointments;
   }

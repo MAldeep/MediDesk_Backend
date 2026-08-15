@@ -2,9 +2,7 @@ import { z } from "zod";
 
 export const createAppointmentSchema = z.object({
   body: z.object({
-    patientName: z
-      .string()
-      .min(2, "Patient name must be at least 2 characters"),
+    patient: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Doctor ID format"),
     doctor: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Doctor ID format"),
     date: z
       .string()
