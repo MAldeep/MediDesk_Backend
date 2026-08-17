@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
-import { createPasswordResetToken, User } from "../models/user.models.js";
+import { User } from "../models/user.models.js";
+import { createPasswordResetToken } from "../utils/generateToken.js";
 import { UserRole } from "../types/user.types.js";
 import { AppError } from "../utils/appError.js";
 import { generateToken } from "../utils/generateToken.js";

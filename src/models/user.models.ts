@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import { IUser } from "../types/user.types.js";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
+
 const userSchema = new Schema<IUser>(
   {
     name: {
@@ -46,15 +46,6 @@ const userSchema = new Schema<IUser>(
   },
 );
 
-export const createPasswordResetToken = () => {
-  const rawToken = crypto.randomBytes(32).toString("hex");
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(rawToken)
-    .digest("hex");
-
-  return { rawToken, hashedToken };
-};
 userSchema.pre("save", async function () {
   if (!this.isModified("password") || !this.password) return;
   this.password = await bcrypt.hash(this.password, 12);
