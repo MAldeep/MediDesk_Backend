@@ -1,5 +1,6 @@
 import { Patient } from "../models/patient.model.js";
 import { IPatient } from "../types/patient.types.js";
+import { APIFeatures } from "../utils/apiFeatures.js";
 import { AppError } from "../utils/appError.js";
 interface AddPatientInput {
   name: string;
@@ -12,8 +13,13 @@ interface AddPatientInput {
 export type UpdatePatientInput = Partial<AddPatientInput>;
 export class PatientService {
   // get all
-  static async getAll(): Promise<IPatient[]> {
-    const patients = await Patient.find();
+  static async getAll(queryString: Record<string, any>): Promise<IPatient[]> {
+    const features = new APIFeatures(Patient.find(), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const patients = await features.query;
     return patients;
   }
   // get one

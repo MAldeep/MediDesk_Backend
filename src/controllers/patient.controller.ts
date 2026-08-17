@@ -6,8 +6,8 @@ import { PatientService } from "../services/patient.services.js";
 export class PatientController {
   // get all
   static getAll = catchAsync(
-    async (_req: AuthenticatedRequest, res: Response) => {
-      const patients = await PatientService.getAll();
+    async (req: AuthenticatedRequest, res: Response) => {
+      const patients = await PatientService.getAll(req.query);
       res.status(200).json({
         status: "success",
         result: patients.length,
