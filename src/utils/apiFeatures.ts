@@ -15,7 +15,11 @@ export class APIFeatures<T> {
     const queryObj = { ...this.queryString };
     const excludedFields = ["page", "sort", "limit", "fields", "search"];
     excludedFields.forEach((field) => delete queryObj[field]);
-
+    if (this.queryString.search) {
+      this.query = this.query.find({
+        $text: { $search: this.queryString.search as string },
+      });
+    }
     let queryStr = JSON.stringify(queryObj);
     // then we replace plain text to query mongoose can understand by regex
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);

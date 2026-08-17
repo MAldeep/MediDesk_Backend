@@ -40,5 +40,5 @@ const patientSchema = new Schema<IPatient>(
     timestamps: true,
   },
 );
-
+patientSchema.index({ name: "text", phone: "text" });
 export const Patient = model<IPatient>("Patient", patientSchema);
