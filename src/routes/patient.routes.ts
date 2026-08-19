@@ -9,7 +9,7 @@ import {
   updatePatientSchema,
 } from "../validations/patient.schema.js";
 import { upload } from "../middlewares/upload.middleware.js";
-import { resizePatientScan } from "../middlewares/resizePatientScan.middleware.js";
+import { uploadPatientScanToCloudinary } from "../middlewares/uploadToCloudinary.middleware.js";
 
 const router = Router();
 
@@ -39,7 +39,7 @@ router
 router.post(
   "/:id/scan",
   upload.single("scan"),
-  resizePatientScan,
+  uploadPatientScanToCloudinary,
   PatientController.uploadScan,
 );
 

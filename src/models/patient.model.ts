@@ -35,10 +35,12 @@ const patientSchema = new Schema<IPatient>(
       ref: "Appointment",
       default: [],
     },
-    scan: {
-      type: [String],
-      default: [],
-    },
+    scan: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,
