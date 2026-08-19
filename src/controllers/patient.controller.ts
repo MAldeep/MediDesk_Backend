@@ -77,11 +77,28 @@ export class PatientController {
       const id = Array.isArray(req.params.id)
         ? req.params.id[0]
         : req.params.id;
-      const patient = await PatientService.uploadScan(id, req.body.scan);
+      const patient = await PatientService.addScan(id, req.body.scan);
       res.status(200).json({
         status: "success",
         message: "Image added successfully !",
         data: { patient },
+      });
+    },
+  );
+  static deleteScan = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { publicId } = req.body;
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      if (!publicId) {
+        throw new AppError("Provide public_id", 400);
+      }
+      const updatedPatient = await PatientService.deleteScan(id, publicId);
+      res.status(200).json({
+        status: "success",
+        message: "Image Deleted Successfully !",
+        data: { updatedPatient },
       });
     },
   );
