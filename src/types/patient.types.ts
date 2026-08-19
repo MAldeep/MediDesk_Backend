@@ -9,4 +9,5 @@ export interface IPatient extends Document {
   gender: "male" | "female";
   history?: string;
   appointments: Types.ObjectId[] | IAppointment[];
+  scan?: string[];
 }

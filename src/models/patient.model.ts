@@ -35,6 +35,10 @@ const patientSchema = new Schema<IPatient>(
       ref: "Appointment",
       default: [],
     },
+    scan: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
