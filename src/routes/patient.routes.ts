@@ -8,6 +8,8 @@ import {
   getOneOrDeletePatientSchema,
   updatePatientSchema,
 } from "../validations/patient.schema.js";
+import { upload } from "../middlewares/upload.middleware.js";
+import { resizePatientScan } from "../middlewares/resizePatientScan.middleware.js";
 
 const router = Router();
 
@@ -34,5 +36,11 @@ router
     validate(getOneOrDeletePatientSchema),
     PatientController.delete,
   );
+router.post(
+  "/:id/scan",
+  upload.single("scan"),
+  resizePatientScan,
+  PatientController.uploadScan,
+);
 
 export default router;
