@@ -42,5 +42,5 @@ router.post(
   uploadPatientScanToCloudinary,
   PatientController.uploadScan,
 );
-
+router.delete("/:id/scan", PatientController.deleteScan);
 export default router;
