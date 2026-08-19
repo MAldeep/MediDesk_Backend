@@ -1,7 +1,8 @@
 import { Patient } from "../models/patient.model.js";
-import { IPatient } from "../types/patient.types.js";
+import { IPatient, IScan } from "../types/patient.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
 import { AppError } from "../utils/appError.js";
+import { CloudinaryService } from "./cloudinary.service.js";
 interface AddPatientInput {
   name: string;
   phone: string;
@@ -56,18 +57,35 @@ export class PatientService {
     }
     return patient;
   }
-  static async uploadScan(
-    patientId: String,
-    scanFileName: string,
-  ): Promise<IPatient> {
+  // add scan (with cloud)
+  static async addScan(patientId: string, scanData: IScan): Promise<IPatient> {
     const patient = await Patient.findByIdAndUpdate(
       patientId,
-      { $push: { scan: scanFileName } },
+      { $push: { scan: scanData } },
       { new: true, runValidators: true },
     );
     if (!patient) {
-      throw new AppError("Patient Not Found", 404);
+      throw new AppError("Patient Not found", 404);
     }
+    return patient;
+  }
+  // delete scan
+  static async deleteScan(
+    patientId: string,
+    publicId: string,
+  ): Promise<IPatient> {
+    await CloudinaryService.deleteImage(publicId);
+
+    const patient = await Patient.findByIdAndUpdate(
+      patientId,
+      { $pull: { scans: { publicId: publicId } } },
+      { new: true },
+    );
+
+    if (!patient) {
+      throw new AppError("Patient Not found", 404);
+    }
+
     return patient;
   }
 }
