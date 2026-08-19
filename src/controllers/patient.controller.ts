@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../types/user.types.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { PatientService } from "../services/patient.services.js";
+import { AppError } from "../utils/appError.js";
 
 export class PatientController {
   // get all
@@ -65,6 +66,22 @@ export class PatientController {
         status: "success",
         message: "patient deleted successfully !",
         data: { deletedPatient },
+      });
+    },
+  );
+  static uploadScan = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+      if (!req.body.scan) {
+        throw new AppError("choose an image to add", 400);
+      }
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const patient = await PatientService.uploadScan(id, req.body.scan);
+      res.status(200).json({
+        status: "success",
+        message: "Image added successfully !",
+        data: { patient },
       });
     },
   );
