@@ -56,4 +56,18 @@ export class PatientService {
     }
     return patient;
   }
+  static async uploadScan(
+    patientId: String,
+    scanFileName: string,
+  ): Promise<IPatient> {
+    const patient = await Patient.findByIdAndUpdate(
+      patientId,
+      { $push: { scan: scanFileName } },
+      { new: true, runValidators: true },
+    );
+    if (!patient) {
+      throw new AppError("Patient Not Found", 404);
+    }
+    return patient;
+  }
 }
