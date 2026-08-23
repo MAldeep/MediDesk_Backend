@@ -17,11 +17,11 @@ router.post("/register", validate(registerSchema), AuthController.register);
 router.post("/login", validate(loginSchema), AuthController.login);
 router.post("/refresh-token", AuthController.refreshToken);
 router.post("/logout", protect, AuthController.logout);
-// router.post(
-//   "/forgot-password",
-//   validate(forgotPasswordSchema),
-//   AuthController.forgotPassword,
-// );
+router.post(
+  "/forgot-password",
+  validate(forgotPasswordSchema),
+  AuthController.forgotPassword,
+);
 router.post(
   "/reset-password/:token",
   validate(resetPasswordSchema),

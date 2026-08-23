@@ -83,4 +83,42 @@ export class EmailServices {
       html: html,
     });
   }
+  static async sendResetPasswordEmail(
+    toEmail: string,
+    userName: string,
+    rawToken: string,
+  ): Promise<void> {
+    const resetUrl = `${env.CLIENT_URL}/reset-password?token=${rawToken}`;
+    const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; text-align: right; padding: 25px; background-color: #f8fafc; border-radius: 8px;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #0284c7; margin-bottom: 20px;">إعادة ضبط كلمة السر 🔐</h2>
+        
+        <p style="font-size: 16px; color: #334155; line-height: 1.6;">
+          أهلاً بك <strong>${userName}</strong>،
+        </p>
+        
+        <p style="font-size: 15px; color: #475569; line-height: 1.6;">
+          لقد تلقينا طلباً لإعادة ضبط كلمة السر الخاصة بحسابك على منصة MediDesk. اضغط على الزر أدناه لإعادة الضبط:
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" 
+            style="background-color: #0284c7; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+            إعادة ضبط كلمة السر
+          </a>
+        </div>
+        
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
+          ⚠️ هذا الرابط صالحة لمدة <strong>10 دقائق فقط</strong>. إذا لم تطلب إعادة الضبط، يمكنك إهمال هذا الإيميل ولن يتغير شيء في حسابك.
+        </p>
+      </div>
+    </div>
+  `;
+    await this.send({
+      to: toEmail,
+      subject: "Reset Your Password -- MediDesk",
+      html,
+    });
+  }
 }

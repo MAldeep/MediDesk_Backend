@@ -56,11 +56,7 @@ export class AuthService {
     if (existingUser) {
       throw new AppError("Email already in use", 400);
     }
-    const rawToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(rawToken)
-      .digest("hex");
+    const { rawToken, hashedToken } = createPasswordResetToken();
     const newUser = await User.create({
       name: data.name,
       email: data.email,
@@ -86,18 +82,22 @@ export class AuthService {
     };
   }
   // forgot password
-  // static async forgotPassword(email: string) {
-  //   const exisitingUser = await User.findOne({ email: email });
-  //   if (!exisitingUser) {
-  //     throw new AppError("User with this email not found", 404);
-  //   }
-  //   const { rawToken, hashedToken } = createPasswordResetToken();
-  //   exisitingUser.passwordResetToken = hashedToken;
-  //   exisitingUser.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
-  //   await exisitingUser.save({ validateBeforeSave: false });
-  //   await EmailService.sendResetPasswordEmail(exisitingUser.email, rawToken);
-  //   // i don't know what should i return here
-  // }
+  static async forgotPassword(email: string) {
+    const exisitingUser = await User.findOne({ email: email });
+    if (!exisitingUser) {
+      throw new AppError("User with this email not found", 404);
+    }
+    const { rawToken, hashedToken } = createPasswordResetToken();
+    exisitingUser.passwordResetToken = hashedToken;
+    exisitingUser.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await exisitingUser.save({ validateBeforeSave: false });
+    EmailServices.sendResetPasswordEmail(
+      exisitingUser.email,
+      exisitingUser.name,
+      rawToken,
+    ).catch((err) => console.log("Failed to send reset-password email:", err));
+    // i don't know what should i return here
+  }
   // reset password
   static async resetPassword(token: string, newPassword: string) {
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
