@@ -87,14 +87,14 @@ export class AuthController {
     });
   });
   // forgotPassword
-  static forgotPassword = catchAsync(async (req: Request, res: Response) => {
-    await AuthService.forgotPassword(req.body.email);
-    res.status(200).json({
-      status: "success",
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
-    });
-  });
+  // static forgotPassword = catchAsync(async (req: Request, res: Response) => {
+  //   await AuthService.forgotPassword(req.body.email);
+  //   res.status(200).json({
+  //     status: "success",
+  //     message:
+  //       "If an account with that email exists, a password reset link has been sent.",
+  //   });
+  // });
   // resetPassword
   static resetPassword = catchAsync(async (req: Request, res: Response) => {
     const { token } = req.params;
@@ -124,12 +124,12 @@ export class AuthController {
     });
   });
   // inviteUser
-  static inviteUser = catchAsync(async (req: Request, res: Response) => {
-    const user = await AuthService.inviteUser(req.body);
-    res.status(201).json({
-      status: "success",
-      message: "User invited successfully",
-      data: { user },
-    });
-  });
+  // static inviteUser = catchAsync(async (req: Request, res: Response) => {
+  //   const user = await AuthService.inviteUser(req.body);
+  //   res.status(201).json({
+  //     status: "success",
+  //     message: "User invited successfully",
+  //     data: { user },
+  //   });
+  // });
 }
