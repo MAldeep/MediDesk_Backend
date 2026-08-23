@@ -51,33 +51,33 @@ export class AuthService {
     };
   }
   // Invite User by admin
-  // static async inviteUser(data: InviteUser) {
-  //   const existingUser = await User.findOne({ email: data.email });
-  //   if (existingUser) {
-  //     throw new AppError("Email already in use", 400);
-  //   }
-  //   const rawToken = crypto.randomBytes(32).toString("hex");
-  //   const hashedToken = crypto
-  //     .createHash("sha256")
-  //     .update(rawToken)
-  //     .digest("hex");
-  //   const newUser = await User.create({
-  //     name: data.name,
-  //     email: data.email,
-  //     role: data.role,
-  //     isVerified: false,
-  //     setPasswordToken: hashedToken,
-  //     setPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-  //   });
-  //   await EmailService.sendSetPasswordEmail(newUser.email, rawToken);
-  //   return {
-  //     id: newUser._id.toString(),
-  //     name: newUser.name,
-  //     email: newUser.email,
-  //     role: newUser.role,
-  //     isVerified: newUser.isVerified,
-  //   };
-  // }
+  static async inviteUser(data: InviteUser) {
+    const existingUser = await User.findOne({ email: data.email });
+    if (existingUser) {
+      throw new AppError("Email already in use", 400);
+    }
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+    const newUser = await User.create({
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      isVerified: false,
+      setPasswordToken: hashedToken,
+      setPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+    // await EmailServices.sendSetPasswordEmail(newUser.email, rawToken);
+    return {
+      id: newUser._id.toString(),
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      isVerified: newUser.isVerified,
+    };
+  }
   // forgot password
   // static async forgotPassword(email: string) {
   //   const exisitingUser = await User.findOne({ email: email });
