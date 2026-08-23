@@ -6,6 +6,7 @@ import { AppError } from "../utils/appError.js";
 import { generateToken } from "../utils/generateToken.js";
 import { LoginInput, RegisterInput } from "../validations/auth.schema.js";
 import crypto from "crypto";
+import { EmailServices } from "./email.service.js";
 
 export interface SafeUser {
   id: string;
@@ -38,6 +39,9 @@ export class AuthService {
       password: data.password,
       role: "admin",
       isVerified: true,
+    });
+    EmailServices.sendWelcomeEmail(data.email, data.name).catch((err) => {
+      console.error("Non-blocking error: Failed to send welcome email:", err);
     });
     return {
       id: newUser._id.toString(),
