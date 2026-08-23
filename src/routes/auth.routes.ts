@@ -33,11 +33,11 @@ router.post(
   validate(resetPasswordSchema),
   AuthController.setPassword,
 );
-// router.post(
-//   "/invite-user",
-//   protect,
-//   restrictTo("admin"),
-//   validate(inviteUsersSchema),
-//   AuthController.inviteUser,
-// );
+router.post(
+  "/invite-user",
+  protect,
+  restrictTo("admin"),
+  validate(inviteUsersSchema),
+  AuthController.inviteUser,
+);
 export default router;

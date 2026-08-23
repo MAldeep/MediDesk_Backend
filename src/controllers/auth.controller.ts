@@ -124,12 +124,17 @@ export class AuthController {
     });
   });
   // inviteUser
-  // static inviteUser = catchAsync(async (req: Request, res: Response) => {
-  //   const user = await AuthService.inviteUser(req.body);
-  //   res.status(201).json({
-  //     status: "success",
-  //     message: "User invited successfully",
-  //     data: { user },
-  //   });
-  // });
+  static inviteUser = catchAsync(async (req: Request, res: Response) => {
+    const { newUserData } = req.body;
+    if (!req.user) {
+      throw new AppError("Authentication required", 401);
+    }
+    const adminName = req.user.name;
+    const user = await AuthService.inviteUser(newUserData, adminName);
+    res.status(201).json({
+      status: "success",
+      message: "User invited successfully",
+      data: { user },
+    });
+  });
 }

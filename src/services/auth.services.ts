@@ -51,7 +51,7 @@ export class AuthService {
     };
   }
   // Invite User by admin
-  static async inviteUser(data: InviteUser) {
+  static async inviteUser(data: InviteUser, adminName: string) {
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       throw new AppError("Email already in use", 400);
@@ -69,7 +69,14 @@ export class AuthService {
       setPasswordToken: hashedToken,
       setPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
-    // await EmailServices.sendSetPasswordEmail(newUser.email, rawToken);
+    EmailServices.sendSetPasswordEmail(
+      newUser.email,
+      newUser.name,
+      adminName,
+      rawToken,
+    ).catch((err) => {
+      console.error("Failed to send set-password email:", err);
+    });
     return {
       id: newUser._id.toString(),
       name: newUser.name,
