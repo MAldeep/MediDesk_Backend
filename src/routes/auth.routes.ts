@@ -16,6 +16,7 @@ const router = Router();
 router.post("/register", validate(registerSchema), AuthController.register);
 router.post("/login", validate(loginSchema), AuthController.login);
 router.post("/refresh-token", AuthController.refreshToken);
+router.get("/me", protect, AuthController.getMe);
 router.post("/logout", protect, AuthController.logout);
 router.post(
   "/forgot-password",

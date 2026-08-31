@@ -66,6 +66,15 @@ export class AuthController {
       },
     });
   });
+  // get me
+  static getMe = catchAsync(async (req: Request, res: Response) => {
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: req.user,
+      },
+    });
+  });
   // Logout
   static logout = catchAsync(async (req: Request, res: Response) => {
     if (req.user) {
