@@ -5,7 +5,7 @@ import { env } from "./config/env.js";
 import { verifyEmailConnection } from "./config/email.config.js";
 
 process.on("uncaughtException", (err: Error) => {
-  console.error("💥 UNCAUGHT EXCEPTION! Shutting down...");
+  console.error("UNCAUGHT EXCEPTION! Shutting down...");
   console.error(err.name, err.message);
   process.exit(1);
 });
@@ -29,7 +29,6 @@ mongoose
     process.exit(1);
   });
 
-// 3. Unhandled Rejections (للتعامل مع الـ Promises المرفوضة خارج الـ Handlers)
 process.on("unhandledRejection", (err: any) => {
   console.error("UNHANDLED REJECTION! Shutting down...");
   console.error(err?.name, err?.message);
