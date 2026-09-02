@@ -15,7 +15,7 @@ export type UpdatePatientInput = Partial<AddPatientInput>;
 export class PatientService {
   // get all
   static async getAll(queryString: Record<string, any>): Promise<IPatient[]> {
-    const features = new APIFeatures(Patient.find(), queryString)
+    const features = new APIFeatures(Patient, queryString)
       .filter()
       .sort()
       .limitFields()
