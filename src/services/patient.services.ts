@@ -78,7 +78,7 @@ export class PatientService {
 
     const patient = await Patient.findByIdAndUpdate(
       patientId,
-      { $pull: { scans: { publicId: publicId } } },
+      { $pull: { scan: { publicId: publicId } } },
       { new: true },
     );
 
