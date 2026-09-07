@@ -52,6 +52,16 @@ export class AuthService {
   }
   // Invite User by admin
   static async inviteUser(data: InviteUser, adminName: string) {
+    if (!data) {
+      throw new AppError("Invitation data is missing", 400);
+    }
+    if (!data.email) {
+      throw new AppError(
+        "Please provide an email address for the invitation",
+        400,
+      );
+    }
+
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       throw new AppError("Email already in use", 400);

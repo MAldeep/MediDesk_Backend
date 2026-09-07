@@ -134,7 +134,7 @@ export class AuthController {
   });
   // inviteUser
   static inviteUser = catchAsync(async (req: Request, res: Response) => {
-    const { newUserData } = req.body;
+    const newUserData = req.body;
     if (!req.user) {
       throw new AppError("Authentication required", 401);
     }
