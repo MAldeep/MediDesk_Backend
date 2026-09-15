@@ -24,15 +24,23 @@ const allowedOrigins = [
   "https://medi-desk-frontend.vercel.app",
 ];
 
+if (env.CLIENT_URL) {
+  allowedOrigins.push(env.CLIENT_URL);
+}
+
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app")
+    ) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS policy"));
     }
   },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -42,8 +50,9 @@ const corsOptions: CorsOptions = {
   ],
   credentials: true,
 };
-app.use(cors(corsOptions));
 
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 // 3. Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
