@@ -68,7 +68,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/patients", patientRoutes);
-app.use("/api/users/doctors");
+app.use("/api/users/doctor", doctorRoutes);
 // 7. 404 Route Handler
 app.use((req: Request, _res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

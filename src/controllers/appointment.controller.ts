@@ -9,6 +9,7 @@ export class AppointmentController {
       const appointments = await AppointmentService.getAll(
         req.user._id.toString(),
         req.user.role,
+        req.query,
       );
       res.status(200).json({
         status: "success",

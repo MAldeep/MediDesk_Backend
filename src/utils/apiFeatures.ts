@@ -1,14 +1,30 @@
-import { Model } from "mongoose";
+import { Model, PipelineStage } from "mongoose";
+
+export interface SearchConfig {
+  indexName?: string;
+  searchFields?: string[];
+  autocompleteFields?: string[];
+}
 
 export class APIFeatures<T> {
   public query: any;
   private queryString: Record<string, any>;
-  private isSearchQuery: boolean = false;
+  public isSearchQuery: boolean = false;
   private model: Model<any>;
+  private searchConfig: SearchConfig;
 
-  constructor(model: Model<any>, queryString: Record<string, any>) {
+  constructor(
+    model: Model<any>,
+    queryString: Record<string, any>,
+    searchConfig: SearchConfig = {},
+  ) {
     this.model = model;
     this.queryString = queryString;
+    this.searchConfig = {
+      indexName: searchConfig.indexName || "default",
+      searchFields: searchConfig.searchFields || ["status"],
+      autocompleteFields: searchConfig.autocompleteFields || [],
+    };
   }
 
   filter(): this {
@@ -16,30 +32,38 @@ export class APIFeatures<T> {
       this.isSearchQuery = true;
       const searchTerm = this.queryString.search as string;
 
-      this.query = this.model.aggregate([
-        {
-          $search: {
-            index: "patient_search_index",
-            compound: {
-              should: [
-                {
-                  autocomplete: {
-                    query: searchTerm,
-                    path: "name",
-                    fuzzy: { maxEdits: 1, prefixLength: 1 },
-                  },
-                },
-                {
-                  autocomplete: {
-                    query: searchTerm,
-                    path: "phone",
-                  },
-                },
-              ],
-            },
+      const shouldClauses: any[] = [];
+
+      this.searchConfig.autocompleteFields?.forEach((field) => {
+        shouldClauses.push({
+          autocomplete: {
+            query: searchTerm,
+            path: field,
+            fuzzy: { maxEdits: 1, prefixLength: 1 },
+          },
+        });
+      });
+
+      this.searchConfig.searchFields?.forEach((field) => {
+        shouldClauses.push({
+          text: {
+            query: searchTerm,
+            path: field,
+            fuzzy: { maxEdits: 1 },
+          },
+        });
+      });
+
+      const searchStage: PipelineStage = {
+        $search: {
+          index: this.searchConfig.indexName,
+          compound: {
+            should: shouldClauses,
           },
         },
-      ]);
+      };
+
+      this.query = this.model.aggregate([searchStage]);
       return this;
     }
 
@@ -55,24 +79,50 @@ export class APIFeatures<T> {
   }
 
   sort(): this {
-    if (this.isSearchQuery) return this;
-
     if (this.queryString.sort) {
       const sortBy = (this.queryString.sort as string).split(",").join(" ");
-      this.query = this.query.sort(sortBy);
+
+      if (this.isSearchQuery) {
+        const sortObj: Record<string, 1 | -1> = {};
+        sortBy.split(" ").forEach((field) => {
+          if (field.startsWith("-")) {
+            sortObj[field.substring(1)] = -1;
+          } else {
+            sortObj[field] = 1;
+          }
+        });
+        this.query = this.query.append([{ $sort: sortObj }]);
+      } else {
+        this.query = this.query.sort(sortBy);
+      }
     } else {
-      this.query = this.query.sort("-createdAt");
+      if (this.isSearchQuery) {
+        this.query = this.query.append([{ $sort: { createdAt: -1 } }]);
+      } else {
+        this.query = this.query.sort("-createdAt");
+      }
     }
     return this;
   }
 
   limitFields(): this {
-    if (this.isSearchQuery) return this;
-
     if (this.queryString.fields) {
       const fields = (this.queryString.fields as string).split(",").join(" ");
-      this.query = this.query.select(fields);
-    } else {
+
+      if (this.isSearchQuery) {
+        const projectObj: Record<string, 1 | 0> = {};
+        fields.split(" ").forEach((field) => {
+          if (field.startsWith("-")) {
+            projectObj[field.substring(1)] = 0;
+          } else {
+            projectObj[field] = 1;
+          }
+        });
+        this.query = this.query.append([{ $project: projectObj }]);
+      } else {
+        this.query = this.query.select(fields);
+      }
+    } else if (!this.isSearchQuery) {
       this.query = this.query.select("-__v");
     }
     return this;

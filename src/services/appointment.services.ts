@@ -1,22 +1,101 @@
+import { Types } from "mongoose";
 import { Appointment } from "../models/appointment.model.js";
 import { AppointmentStatus, IAppointment } from "../types/appointment.types.js";
 import { UserRole } from "../types/user.types.js";
 import { AppError } from "../utils/appError.js";
 import { CreateAppointmentInput } from "../validations/appointment.schema.js";
+import { APIFeatures } from "../utils/apiFeatures.js";
 
 export class AppointmentService {
   // get all
-  static async getAll(userId: string, role: UserRole): Promise<IAppointment[]> {
-    const filter: Record<string, any> = {};
+  static async getAll(
+    userId: string,
+    role: UserRole,
+    queryString: Record<string, any> = {},
+  ): Promise<IAppointment[]> {
+    // 1. الفلترة حسب دور المستخدم
+    const baseFilter: Record<string, any> = {};
     if (role === "doctor") {
-      filter.doctor = userId;
+      baseFilter.doctor = userId;
     }
-    const appointments = await Appointment.find(filter)
+
+    const mergedQuery = { ...queryString, ...baseFilter };
+
+    // 2. حالة البحث (Search Mode): السيرش في أسماء المرضى والدكاترة والـ status
+    if (queryString.search) {
+      const searchTerm = queryString.search as string;
+      const page = Math.max(1, parseInt(queryString.page, 10) || 1);
+      const limit = Math.max(1, parseInt(queryString.limit, 10) || 10);
+      const skip = (page - 1) * limit;
+
+      // تحديد اتجاه الترتيب (Sort)
+      let sortStage: Record<string, 1 | -1> = { date: -1 };
+      if (queryString.sort) {
+        const isDesc = (queryString.sort as string).startsWith("-");
+        const field = (queryString.sort as string).replace("-", "");
+        sortStage = { [field]: isDesc ? -1 : 1 };
+      }
+
+      const pipeline: any[] = [
+        { $match: baseFilter },
+        {
+          $lookup: {
+            from: "patients",
+            localField: "patient",
+            foreignField: "_id",
+            as: "patient",
+          },
+        },
+        { $unwind: { path: "$patient", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "doctor",
+            foreignField: "_id",
+            as: "doctor",
+          },
+        },
+        { $unwind: { path: "$doctor", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "createdBy",
+          },
+        },
+        { $unwind: { path: "$createdBy", preserveNullAndEmptyArrays: true } },
+        {
+          $match: {
+            $or: [
+              { "patient.name": { $regex: searchTerm, $options: "i" } },
+              { "patient.phone": { $regex: searchTerm, $options: "i" } },
+              { "doctor.name": { $regex: searchTerm, $options: "i" } },
+              { status: { $regex: searchTerm, $options: "i" } },
+            ],
+          },
+        },
+        { $sort: sortStage },
+        { $skip: skip },
+        { $limit: limit },
+      ];
+
+      return await Appointment.aggregate(pipeline);
+    }
+
+    // 3. الحالة العادية (بدون search): استخدام APIFeatures
+    const features = new APIFeatures<IAppointment>(Appointment, mergedQuery)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const appointments = await features.query
       .populate("doctor", "name email")
       .populate("createdBy", "name email")
-      .populate("patient", "name phone")
-      .sort({ date: 1 });
-    return appointments;
+      .populate("patient", "name phone");
+
+    return appointments as IAppointment[];
   }
   // create
   static async create(
@@ -25,13 +104,14 @@ export class AppointmentService {
   ): Promise<IAppointment> {
     const { doctor, date, durationMinutes = 30 } = data;
 
+    const doctorObjectId = new Types.ObjectId(doctor);
     const newStartTime = new Date(date);
     const newEndTime = new Date(
       newStartTime.getTime() + durationMinutes * 60000,
     );
 
     const existingAppointment = await Appointment.findOne({
-      doctor,
+      doctor: doctorObjectId,
       status: { $ne: "cancelled" },
       date: { $lt: newEndTime },
       $expr: {
@@ -51,6 +131,7 @@ export class AppointmentService {
 
     const appointment = await Appointment.create({
       ...data,
+      doctor: doctorObjectId,
       durationMinutes,
       createdBy: userId,
     });
