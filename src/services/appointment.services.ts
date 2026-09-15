@@ -23,10 +23,38 @@ export class AppointmentService {
     data: CreateAppointmentInput,
     userId: string,
   ): Promise<IAppointment> {
+    const { doctor, date, durationMinutes = 30 } = data;
+
+    const newStartTime = new Date(date);
+    const newEndTime = new Date(
+      newStartTime.getTime() + durationMinutes * 60000,
+    );
+
+    const existingAppointment = await Appointment.findOne({
+      doctor,
+      status: { $ne: "cancelled" },
+      date: { $lt: newEndTime },
+      $expr: {
+        $gt: [
+          { $add: ["$date", { $multiply: ["$durationMinutes", 60000] }] },
+          newStartTime,
+        ],
+      },
+    });
+
+    if (existingAppointment) {
+      throw new AppError(
+        "Doctor already has an overlapping appointment at this time",
+        400,
+      );
+    }
+
     const appointment = await Appointment.create({
       ...data,
+      durationMinutes,
       createdBy: userId,
     });
+
     return appointment;
   }
   // get one

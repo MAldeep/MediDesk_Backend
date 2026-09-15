@@ -26,6 +26,7 @@ export class AppointmentController {
       );
       res.status(201).json({
         status: "success",
+        message: "Appointment Added Successfully",
         data: { appointment },
       });
     },

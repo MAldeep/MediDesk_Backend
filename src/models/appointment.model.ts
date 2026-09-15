@@ -17,6 +17,10 @@ const appointmentSchema = new Schema<IAppointment>(
       type: Date,
       required: [true, "Appointment date is required"],
     },
+    durationMinutes: {
+      type: Number,
+      default: 30,
+    },
     status: {
       type: String,
       enum: ["scheduled", "completed", "cancelled"],
@@ -32,20 +36,7 @@ const appointmentSchema = new Schema<IAppointment>(
     timestamps: true,
   },
 );
-// appointmentSchema.pre(/^find/, function (this: any, next: () => void) {
-//   this.populate({
-//     path: "patient",
-//     select: "name phone age gender",
-//   }).populate({
-//     path: "doctor",
-//     select: "name email role",
-//   });
-
-//   if (next) {
-//     next();
-//   }
-// });
-// appointmentSchema.index({ doctor: 1, date: 1 }, { unique: true });
+appointmentSchema.index({ doctor: 1, date: 1, status: 1 });
 export const Appointment = model<IAppointment>(
   "Appointment",
   appointmentSchema,

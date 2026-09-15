@@ -8,6 +8,7 @@ export interface IAppointment extends Document {
   patient: Types.ObjectId | IPatient;
   doctor: Types.ObjectId | IUser;
   date: Date;
+  durationMinutes: number;
   status: AppointmentStatus;
   createdBy: Types.ObjectId | IUser;
   createdAt: Date;

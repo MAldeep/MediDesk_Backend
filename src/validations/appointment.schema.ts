@@ -20,6 +20,7 @@ export const createAppointmentSchema = z.object({
           message: "Date can't be in the past",
         },
       ),
+    durationMinutes: z.number().min(10, "At least ten minutes"),
     status: z.enum(["scheduled", "completed", "cancelled"]).optional(),
   }),
 });
