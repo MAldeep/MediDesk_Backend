@@ -13,7 +13,6 @@ export class AppointmentService {
     role: UserRole,
     queryString: Record<string, any> = {},
   ): Promise<IAppointment[]> {
-    // 1. الفلترة حسب دور المستخدم
     const baseFilter: Record<string, any> = {};
     if (role === "doctor") {
       baseFilter.doctor = userId;
@@ -21,14 +20,12 @@ export class AppointmentService {
 
     const mergedQuery = { ...queryString, ...baseFilter };
 
-    // 2. حالة البحث (Search Mode): السيرش في أسماء المرضى والدكاترة والـ status
     if (queryString.search) {
       const searchTerm = queryString.search as string;
       const page = Math.max(1, parseInt(queryString.page, 10) || 1);
       const limit = Math.max(1, parseInt(queryString.limit, 10) || 10);
       const skip = (page - 1) * limit;
 
-      // تحديد اتجاه الترتيب (Sort)
       let sortStage: Record<string, 1 | -1> = { date: -1 };
       if (queryString.sort) {
         const isDesc = (queryString.sort as string).startsWith("-");
@@ -83,7 +80,6 @@ export class AppointmentService {
       return await Appointment.aggregate(pipeline);
     }
 
-    // 3. الحالة العادية (بدون search): استخدام APIFeatures
     const features = new APIFeatures<IAppointment>(Appointment, mergedQuery)
       .filter()
       .sort()
