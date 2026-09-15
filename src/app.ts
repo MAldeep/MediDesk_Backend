@@ -16,7 +16,11 @@ import doctorRoutes from "./routes/doctors.routes.js";
 const app = express();
 
 // 1. Security Headers
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 // 2. CORS Setup
 const allowedOrigins = [
