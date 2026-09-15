@@ -19,7 +19,10 @@ const app = express();
 app.use(helmet());
 
 // 2. CORS Setup
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://medi-desk-frontend.vercel.app",
+];
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
