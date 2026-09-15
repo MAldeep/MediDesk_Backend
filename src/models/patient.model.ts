@@ -30,11 +30,6 @@ const patientSchema = new Schema<IPatient>(
       type: String,
       required: false,
     },
-    appointments: {
-      type: [Schema.Types.ObjectId],
-      ref: "Appointment",
-      default: [],
-    },
     scan: [
       {
         url: { type: String, required: true },
@@ -44,6 +39,13 @@ const patientSchema = new Schema<IPatient>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
+patientSchema.virtual("appointments", {
+  ref: "Appointment",
+  localField: "_id",
+  foreignField: "patient",
+});
 export const Patient = model<IPatient>("Patient", patientSchema);

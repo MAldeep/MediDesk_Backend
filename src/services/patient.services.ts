@@ -28,7 +28,7 @@ export class PatientService {
   }
   // get one
   static async getById(patientId: string): Promise<IPatient> {
-    const patient = await Patient.findById(patientId);
+    const patient = await Patient.findById(patientId).populate("appointments");
     if (!patient) {
       throw new AppError("Patient Not Found", 404);
     }
