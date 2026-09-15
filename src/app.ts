@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
 import patientRoutes from "./routes/patient.routes.js";
 import doctorRoutes from "./routes/doctors.routes.js";
+
 const app = express();
 
 // 1. Security Headers
@@ -53,10 +54,12 @@ const corsOptions: CorsOptions = {
     "Accept",
   ],
   credentials: true,
+  optionsSuccessStatus: 200,
 };
 
-app.options("*", cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 app.use(cors(corsOptions));
+
 // 3. Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -85,6 +88,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/patients", patientRoutes);
 app.use("/api/users/doctor", doctorRoutes);
+
 // 7. 404 Route Handler
 app.use((req: Request, _res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
