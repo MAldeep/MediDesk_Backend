@@ -54,7 +54,6 @@ const corsOptions: CorsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-app.options(/(.*)/, cors(corsOptions));
 app.use(cors(corsOptions));
 
 // 3. Rate Limiter
