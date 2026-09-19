@@ -40,7 +40,7 @@ const corsOptions: CorsOptions = {
       ? ([
           "https://medi-desk-frontend.vercel.app",
           env.CLIENT_URL,
-          "https://medi-desk-frontend.vercel.app",
+          "https://medi-desk-frontend-jzunzhbyk-mohameds-projects-e8df73ea.vercel.app",
         ].filter(Boolean) as string[])
       : ["http://localhost:3000"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
