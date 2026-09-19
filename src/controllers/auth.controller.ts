@@ -7,13 +7,13 @@ import { AppError } from "../utils/appError.js";
 const refreshTokenCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+  sameSite: "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 const accessTokenCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+  sameSite: "lax",
   maxAge: 15 * 60 * 1000,
 };
 
@@ -85,12 +85,12 @@ export class AuthController {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: "lax",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: "lax",
     });
     res.status(200).json({
       status: "success",
