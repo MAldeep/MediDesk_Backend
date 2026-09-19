@@ -85,12 +85,12 @@ export class AuthController {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     });
     res.status(200).json({
       status: "success",
