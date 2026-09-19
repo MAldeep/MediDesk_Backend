@@ -16,6 +16,7 @@ import doctorRoutes from "./routes/doctors.routes.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
 // 1. Security Headers
 app.use(
   helmet({
@@ -34,17 +35,14 @@ if (env.CLIENT_URL) {
 }
 
 const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      origin.endsWith(".vercel.app")
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS policy"));
-    }
-  },
+  origin:
+    env.NODE_ENV === "production"
+      ? ([
+          "https://medi-desk-frontend.vercel.app",
+          env.CLIENT_URL,
+          "https://medi-desk-frontend.vercel.app",
+        ].filter(Boolean) as string[])
+      : ["http://localhost:3000"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: [
     "Content-Type",
@@ -56,7 +54,6 @@ const corsOptions: CorsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-
 app.options(/(.*)/, cors(corsOptions));
 app.use(cors(corsOptions));
 
