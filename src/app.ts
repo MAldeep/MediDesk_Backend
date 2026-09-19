@@ -26,50 +26,27 @@ app.use(
 
 // 2. CORS Setup
 const allowedOrigins = [
-  "http://localhost:3000",
   "https://medi-desk-frontend.vercel.app",
+  "http://localhost:3000",
 ];
 
-if (env.CLIENT_URL) {
-  allowedOrigins.push(env.CLIENT_URL);
-}
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS Policy: Origin not allowed"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-App-Version"],
+};
 
-// const corsOptions: CorsOptions = {
-//   origin:
-//     env.NODE_ENV === "production"
-//       ? ([
-//           "https://medi-desk-frontend.vercel.app",
-//           env.CLIENT_URL,
-//           "https://medi-desk-frontend-jzunzhbyk-mohameds-projects-e8df73ea.vercel.app",
-//         ].filter(Boolean) as string[])
-//       : ["http://localhost:3000"],
-//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//   allowedHeaders: [
-//     "Content-Type",
-//     "Authorization",
-//     "X-App-Version",
-//     "X-Requested-With",
-//     "Accept",
-//   ],
-//   credentials: true,
-//   optionsSuccessStatus: 200,
-// };
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+app.options(/(.*)/, cors(corsOptions));
+
 // 3. Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
