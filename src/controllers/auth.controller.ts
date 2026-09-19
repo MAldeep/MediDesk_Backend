@@ -13,7 +13,7 @@ const refreshTokenCookieOptions: CookieOptions = {
 const accessTokenCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: "none",
   maxAge: 15 * 60 * 1000,
 };
 
