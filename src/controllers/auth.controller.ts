@@ -68,10 +68,12 @@ export class AuthController {
   });
   // get me
   static getMe = catchAsync(async (req: Request, res: Response) => {
+    const accessToken = req.cookies?.accessToken;
     res.status(200).json({
       status: "success",
       data: {
         user: req.user,
+        accessToken,
       },
     });
   });
