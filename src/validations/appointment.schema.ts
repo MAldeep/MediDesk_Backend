@@ -22,6 +22,8 @@ export const createAppointmentSchema = z.object({
       ),
     durationMinutes: z.number().min(10, "At least ten minutes"),
     status: z.enum(["scheduled", "completed", "cancelled"]).optional(),
+    procedure: z.string().min(3, "Appointment Procedure must be provided"),
+    notes: z.string().optional(),
   }),
 });
 

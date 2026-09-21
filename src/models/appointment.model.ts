@@ -26,6 +26,13 @@ const appointmentSchema = new Schema<IAppointment>(
       enum: ["scheduled", "completed", "cancelled"],
       default: "scheduled",
     },
+    procedure: {
+      type: String,
+      required: [true, "Appointment Procedure is required"],
+    },
+    notes: {
+      type: String,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

@@ -10,6 +10,8 @@ export interface IAppointment extends Document {
   date: Date;
   durationMinutes: number;
   status: AppointmentStatus;
+  procedure: string;
+  notes?: string;
   createdBy: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;
