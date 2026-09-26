@@ -85,12 +85,12 @@ export class AuthController {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
     res.status(200).json({
       status: "success",
