@@ -101,12 +101,11 @@ export class AuthService {
     exisitingUser.passwordResetToken = hashedToken;
     exisitingUser.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
     await exisitingUser.save({ validateBeforeSave: false });
-    EmailServices.sendResetPasswordEmail(
+    await EmailServices.sendResetPasswordEmail(
       exisitingUser.email,
       exisitingUser.name,
       rawToken,
     ).catch((err) => console.log("Failed to send reset-password email:", err));
-    // i don't know what should i return here
   }
   // reset password
   static async resetPassword(token: string, newPassword: string) {
