@@ -26,7 +26,6 @@ router
   .get(AppointmentController.getById)
   .delete(restrictTo("admin"), AppointmentController.delete)
   .patch(
-    restrictTo("admin", "staff"),
     validate(updateAppointmentStatusSchema),
     AppointmentController.update,
   );
