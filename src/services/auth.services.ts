@@ -93,19 +93,37 @@ export class AuthService {
   }
   // forgot password
   static async forgotPassword(email: string) {
-    const exisitingUser = await User.findOne({ email: email });
-    if (!exisitingUser) {
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
       throw new AppError("User with this email not found", 404);
     }
+
     const { rawToken, hashedToken } = createPasswordResetToken();
-    exisitingUser.passwordResetToken = hashedToken;
-    exisitingUser.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
-    await exisitingUser.save({ validateBeforeSave: false });
-    await EmailServices.sendResetPasswordEmail(
-      exisitingUser.email,
-      exisitingUser.name,
-      rawToken,
-    ).catch((err) => console.log("Failed to send reset-password email:", err));
+    existingUser.passwordResetToken = hashedToken;
+
+    const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
+    existingUser.passwordResetExpires = new Date(
+      Date.now() + TEN_MINUTES_IN_MS,
+    );
+
+    await existingUser.save({ validateBeforeSave: false });
+
+    try {
+      await EmailServices.sendResetPasswordEmail(
+        existingUser.email,
+        existingUser.name,
+        rawToken,
+      );
+    } catch (err) {
+      existingUser.passwordResetToken = undefined;
+      existingUser.passwordResetExpires = undefined;
+      await existingUser.save({ validateBeforeSave: false });
+
+      throw new AppError(
+        "There was an error sending the email. Please try again later!",
+        500,
+      );
+    }
   }
   // reset password
   static async resetPassword(token: string, newPassword: string) {
